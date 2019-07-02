@@ -9,17 +9,19 @@ class BottomNav extends Component {
         return (
             <div className="d-flex justify-content-around align-items-center bg-default App-nav-bottom" style={{color:'white', position:'fixed', bottom:'0', height:'65px', padding:'6px 15px 9px', boxShadow: '0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)'}}>
                 {/* https://www.waze.com/ul?ll=3.1579%2C101.6202&navigate=yes&zoom=17 */}
-                <NavLink href="https://www.waze.com/ul?ll=3.1579%2C101.6202&navigate=yes&zoom=17">
+                <NavLink style={{padding:'0'}} href="https://www.waze.com/ul?ll=3.1579%2C101.6202&navigate=yes&zoom=17">
                     <img src={WAZE} style={{height:'calc(55px - 30px)'}} />
                     {/* WAZE */}
                 </NavLink>
-                <NavLink href="#">
-                    <Button color="primary" style={styles.RSVP}>RSVP</Button>
-                </NavLink>
-                <NavLink href="#">
+
+                <div style={{padding:'0'}} href="#">
+                    <Button color="primary" style={{...styles.RSVP, margin:'0'}} onClick={() => {alert('Hewwo.\nNak RSVP ke? sabar eh, nak rehat jap zZz...')}}>RSVP</Button>
+                </div>
+
+                <div style={{padding:'0'}} onClick={() => {alert('Hewwo.\nFunction ni tak siap lagi hohoho!!')}}>
                     <img src={WASEP} style={{height:'calc(55px - 30px)'}} />
                     {/* WHATSAPP */}
-                </NavLink>
+                </div>
             </div>
         );
     }
