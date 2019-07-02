@@ -9,12 +9,14 @@ import BottomNav from 'components/BottomNav';
 class App extends Component {
   render() {
     return (
-      <div className="text-center">
+      <div className="text-center App-container">
         <Header />
 
         <InvitationDetails />
 
         <BottomNav/>
+
+        <div style={{paddingTop:'75px'}}></div>
       </div>
     );
   }

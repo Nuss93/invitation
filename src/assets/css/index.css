@@ -4,13 +4,13 @@
   font-family: 'Dancing Script', cursive;
   font-family: 'Lato', sans-serif;
 */
-:root {
+/* :root {
   --default: #404c62;
   --blue: #5e72e4;
   --indigo: #5603ad;
   --purple: #8965e0;
   --pink: #f3a4b5;
-}
+} */
 
 html{
   font-size: 12px;
@@ -18,6 +18,7 @@ html{
 
 body {
   margin: 0;
+  color: #172b4d;
   /* background-color: #404c62; */
   font-family: 'Lato' !important;
   -webkit-font-smoothing: antialiased;
@@ -29,7 +30,7 @@ body {
 }
 
 .App-container {
-  max-width: 550px;
+  max-width: 425px;
   /* min-height: 100vh; */
   margin: 0 auto;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
@@ -43,8 +44,8 @@ body {
 }
 
 .App-section{
-  padding: 3.5rem 2.5rem;
-  color: #404c62;
+  padding: 2.5rem 2.5rem;
+  color: #172b4d;
 }
 .App-section.dark {
   background-color: #404c62;
@@ -57,8 +58,16 @@ body {
   background-color: #ffffff;
 }
 /* .App-section.light>div {
-  color: #404c62;
+  color: #172b4d;
 } */
+.App-nav-bottom {
+  min-width: 100%;
+}
+@media (min-width: 768px) {
+  .App-nav-bottom {
+    min-width: 425px
+  }
+}
 
 .App-link {
   color: #61dafb;

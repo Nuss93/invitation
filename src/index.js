@@ -1,10 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'assets/css/index.css';
-import App from 'views/App.jsx';
 import * as serviceWorker from './serviceWorker';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import App from './views/App.jsx';
 
+import "assets/vendor/nucleo/css/nucleo.css";
+import "assets/vendor/font-awesome/css/font-awesome.min.css";
+import "assets/css/argon-design-system-react.css";
+
+import './assets/css/index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+// import "./assets/css/argon.css";
 import * as firebase from 'firebase';
 
 // Your web app's Firebase configuration
