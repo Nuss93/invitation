@@ -9,7 +9,6 @@ class RSVP extends Component {
         super(props);
         this.state = {
             modalRSVP:false,
-            modalFindRSVP:false,
             collapseNOT: false,
             collapseMAYBE: false,
             collapseYES: false,
@@ -23,82 +22,6 @@ class RSVP extends Component {
             // attendee_message:'',
         };
     }
-
-    toggleFindRSVP = () => {
-        this.fetchRSVP()
-        this.setState({ modalFindRSVP : !this.state. modalFindRSVP })
-    }
-
-    closeOpen = () => {
-        let that = this;
-        let access = this.props.event.RSVP
-        let ErrorHandler = this.state
-        console.log(access);
-        
-
-        // error handler for email
-        if(ErrorHandler.attendee_email === ''){
-            alert('WARNING!\nPlease fill in your email.')
-            return;
-        }
-        
-        // CHECKS TO SEE IF EMAIL ALREADY EXIST
-        let check = that.state.emailChecker.map((x) => {
-            return x.email;
-        }).indexOf(this.state.attendee_email);
-
-        console.log(check);
-
-        if(access === 'open'){
-            if(check !== -1){
-
-                let r = window.confirm('Seems like you have already sent us an RSVP.\nYou responded as ' + this.state.emailChecker[check].response.toUpperCase() + '. Would you like to change your RSVP?')
-                
-                // CHECK IF USER WANTS TO EDIT THEIR RSVP
-                if(!r){
-                    console.log('Cancelled');
-                    this.toggleFindRSVP()
-                    return;
-                }
-                // console.log(that.state.emailChecker[check]);
-                this.setState({
-                    attendee_check : that.state.emailChecker[check],
-                    attendee_name : this.state.emailChecker[check].name
-                }, () => {console.log(this.state.attendee_name)})
-
-                this.toggleFindRSVP()
-                this.toggleRSVP()
-                return
-            }
-            
-            this.toggleFindRSVP()
-            this.toggleRSVP()
-        }
-        if(access === 'closed'){
-            // alert('Closed event')
-            if(check === -1){
-                alert('It seems you are not invited.\n\nIf you think this was a mistake, please check with the event hosts for the email addresses that they have added you to the guestlist.')
-                return;
-            }
-
-            // let r = window.confirm('Seems like you have already sent us an RSVP.\nYou responded as ' + this.state.emailChecker[check].response.toUpperCase() + '. Would you like to change your RSVP?')
-            // // CHECK IF USER WANTS TO EDIT THEIR RSVP
-            // if(!r){
-            //     console.log('Cancelled');
-            //     this.toggleFindRSVP()
-            //     return;
-            // }
-
-            this.setState({
-                attendee_check : that.state.emailChecker[check],
-                attendee_name : this.state.emailChecker[check].name
-            }, () => {console.log(this.state.attendee_name, this.state.attendee_check)})
-            this.toggleFindRSVP()
-            this.toggleRSVP()
-        }
-        
-    }
-
     toggleRSVP = () => {
         this.setState({
             modalRSVP : !this.state. modalRSVP,
@@ -107,13 +30,17 @@ class RSVP extends Component {
             collapseYES: false,
         })
     }
-
+    componentDidMount() {
+        this.fetchRSVP()
+    }
+    componentWillUnmount() {
+        let REF = 'RSVP/'
+        firebase.database().ref(REF).off()
+    }
+    // function to toggle the response attendees want to RSVP
     toggleCollapse = (response) => {
         this.setState({
             response:response,
-            // attendee_name:'',
-            // attendee_pax: 0,
-            // attendee_message:'',
         }, () => {console.log(this.state.response)})
 
         if(response === 'notgoing'){
@@ -133,12 +60,10 @@ class RSVP extends Component {
         }
     }
 
-    componentDidMount() {
-    }
-
     fetchRSVP = () => {
         let that = this;
-        let REF = 'wedding/' + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/checker'
+        let REF = 'RSVP/'
+
         firebase.database().ref(REF).on('value', function(snapshot){
             let EMAIL = [];
             if(snapshot.exists()){
@@ -157,7 +82,7 @@ class RSVP extends Component {
 
                 that.setState({emailChecker:EMAIL})
             } else {
-                console.log('no');
+                console.log('no on has RSVP yet');
             }
         })
     }
@@ -271,42 +196,22 @@ class RSVP extends Component {
         return (
             <div>
                 {/* <Button onClick={this.toggleFindRSVP} style={{background:`${this.props.primary}`,borderColor:`${this.props.primary}`, margin: '3px 0', fontSize:'1.2rem'}}>RSVP</Button> */}
-                <Button onClick={this.toggleFindRSVP} color="primary" style={{...styles.RSVP, margin:'0'}}>RSVP</Button>
+                <Button onClick={this.toggleRSVP} color="primary" style={{...styles.RSVP, margin:'0'}}>RSVP</Button>
 
-                <Modal isOpen={this.state.modalFindRSVP} toggle={this.toggleFindRSVP}>
-                    <ModalHeader toggle={this.toggleFindRSVP}>Find Your Invitation</ModalHeader>
-                    <ModalBody>
-                        {/* <p className="text-center h3">This is an invitation only exclusive event</p> */}
-                        <p>Fill in details below to find your invitation</p>
-                        <Form>
-                            <FormGroup>
-                                <Label for='attendee_email'>Email</Label>
-                                <Input type='text' name='attendee_email' id='attendee_email' onChange={this.handleChange}/>
-                            </FormGroup>
-                        </Form>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button color='dark' onClick={() => {
-                            this.closeOpen()
-                        }}>Next</Button>{' '}
-                        <Button color='darkest' onClick={this.toggleFindRSVP}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-
-                <Modal isOpen={this.state.modalRSVP} toggle={this.toggleRSVP}>
+                {/* ===toggleRSVP=== */}
+                <Modal className="modal-dialog-centered modal-default" style={{maxWidth:'425px', color:'white'}} isOpen={this.state.modalRSVP} toggle={this.toggleRSVP}>
                     <ModalHeader toggle={this.toggleRSVP}>RSVP</ModalHeader>
                     <ModalBody>
-                        <p className="text-center h3">Confirm attendance</p>
+                        <p className="text-center h3 text-white">Confirm attendance</p>
                         <div style={{display:'flex', justifyContent:'center'}}>
-                            <Button onClick={() => {this.toggleCollapse('notgoing')}} style={{flex:'1', margin:'0 5px'}} outline color="darkest">Not Going</Button>{' '}
-                            <Button onClick={() => {this.toggleCollapse('maybe')}} style={{flex:'1', margin:'0 5px'}} outline color="darkest">Maybe</Button>{' '}
-                            <Button onClick={() => {this.toggleCollapse('going')}} style={{flex:'1', margin:'0 5px'}} outline color="darkest">Going</Button>
+                            <Button onClick={() => {this.toggleCollapse('notgoing')}} style={{flex:'1', margin:'0 5px'}} color="danger">Not Going</Button>{' '}
+                            <Button onClick={() => {this.toggleCollapse('maybe')}} style={{flex:'1', margin:'0 5px'}} color="warning">Maybe</Button>{' '}
+                            <Button onClick={() => {this.toggleCollapse('going')}} style={{flex:'1', margin:'0 5px'}} color="success">Going</Button>
                         </div>
 
                         <Collapse isOpen={this.state.collapseNOT} >
                             <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4">Not Going</p>
+                                <p className="text-center h4 text-white">Not Going</p>
                                 <Form>
                                     <FormGroup>
                                         <Label for='attendee_name'>Name</Label>
@@ -328,7 +233,7 @@ class RSVP extends Component {
 
                         <Collapse isOpen={this.state.collapseMAYBE} >
                             <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4">Maybe</p>
+                                <p className="text-center h4 text-white">Maybe</p>
                                 <Form>
                                     <FormGroup>
                                         <Label for='attendee_name'>Name</Label>
@@ -350,7 +255,7 @@ class RSVP extends Component {
 
                         <Collapse isOpen={this.state.collapseYES} >
                             <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4">Going</p>
+                                <p className="text-center h4 text-white">Going</p>
                                 <Form>
                                     <FormGroup >
                                         <Label for='attendee_name'>Name</Label>
@@ -380,11 +285,11 @@ class RSVP extends Component {
                         
                     </ModalBody>
                     <ModalFooter>
-                        <Button color='dark' onClick={() => {
+                        <Button color='primary' onClick={() => {
                             this._confirm()
                             this.toggleRSVP()
                         }}>Confirm</Button>{' '}
-                        <Button color='darkest' onClick={this.toggleRSVP}>Cancel</Button>
+                        <Button className='ml-auto text-white' color='link' onClick={this.toggleRSVP}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </div>

@@ -2255,7 +2255,7 @@ fieldset:disabled a.btn {
   background-color: transparent; }
   .btn-link:hover {
     color: #233dd2;
-    text-decoration: none;
+    text-decoration: none !important;
     background-color: transparent;
     border-color: transparent; }
   .btn-link:focus, .btn-link.focus {
