@@ -9,57 +9,29 @@ class RSVP extends Component {
         super(props);
         this.state = {
             modalRSVP:false,
-            collapseNOT: false,
-            collapseMAYBE: false,
-            collapseYES: false,
             emailChecker: [],
-
+            loadButt: false,
             response: '',
-            attendee_check:'',
-            attendee_name:'',
-            // attendee_pax: 0,
-            attendee_email:'',
-            // attendee_message:'',
+            name:'',
+            pax: 0,
+            message:'',
         };
+    }
+    handleChange = (evt) => {
+        this.setState({ [evt.target.name]: evt.target.value });
     }
     toggleRSVP = () => {
         this.setState({
             modalRSVP : !this.state. modalRSVP,
-            collapseNOT: false,
-            collapseMAYBE: false,
-            collapseYES: false,
         })
     }
     componentDidMount() {
-        this.fetchRSVP()
+        // this.fetchRSVP()
     }
     componentWillUnmount() {
-        let REF = 'RSVP/'
-        firebase.database().ref(REF).off()
+        // let REF = 'RSVP/'
+        // firebase.database().ref(REF).off()
     }
-    // function to toggle the response attendees want to RSVP
-    toggleCollapse = (response) => {
-        this.setState({
-            response:response,
-        }, () => {console.log(this.state.response)})
-
-        if(response === 'notgoing'){
-            this.setState(state => ({ collapseNOT: true }));
-            this.setState(state => ({ collapseMAYBE: false }));
-            this.setState(state => ({ collapseYES: false }));
-        }
-        if(response === 'maybe'){
-            this.setState(state => ({ collapseNOT: false }));
-            this.setState(state => ({ collapseMAYBE: true }));
-            this.setState(state => ({ collapseYES: false }));
-        }
-        if(response === 'going'){
-            this.setState(state => ({ collapseNOT: false }));
-            this.setState(state => ({ collapseMAYBE: false }));
-            this.setState(state => ({ collapseYES: true }));
-        }
-    }
-
     fetchRSVP = () => {
         let that = this;
         let REF = 'RSVP/'
@@ -87,209 +59,119 @@ class RSVP extends Component {
         })
     }
 
-    handleChange = (evt) => {
-        this.setState({ [evt.target.name]: evt.target.value });
+    _markResponse = (response) => {
+        this.setState({response: response})
     }
-
-    _confirm = () => {
-        if(this.props.disabled) {
-            this.setState({
-                attendee_email:'',
-                attendee_name:'',
-                attendee_check:'',
-                response:'',
-            })
-            // alert('This is a preview')
+    _save = () => {
+        const { response, name, pax, message } = this.state;
+        this.setState({loadButt: true})
+        if(response === '') {
+            alert('Please pick your response!')
             return;
         }
+        if(name === '') {
+            alert('Please fill in your name!')
+            return;
+        }
+        console.log(name, response, pax, message);
         
-        let that = this;
-        let access = this.props.event.RSVP;
-        let ErrorHandler = this.state;
-        console.log(this.state.attendee_name, this.state.attendee_email);
-
-        if(ErrorHandler.attendee_name === '' || ErrorHandler.response === ''){
-            alert('WARNING!\nPlease choose your attendance and enter your details.');
-            return;
-        }
-
-        let REF = 'wedding/'
-        if(access === 'open'){
-            console.log('key',this.state.attendee_check.key);
-            let ATTENDEE_EMAIL = this.state.attendee_email;
-            let ATTENDEE_NAME = this.state.attendee_name;
-            let RESPONSE = this.state.response;
-            let SAVE_KEY
-            
-            if(this.state.attendee_check === ''){
-                SAVE_KEY = firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/' + this.state.response).push().getKey()
-            } else {
-                SAVE_KEY = this.state.attendee_check.key
-
-                firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/' + this.state.attendee_check.response + '/' + SAVE_KEY).remove()
-            }
-            console.log(SAVE_KEY);
-            // console.log('OPEN check then save terus ke firebase');
-
-            firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/' + this.state.response + '/' + SAVE_KEY).update({
-                name: ATTENDEE_NAME,
-                email: ATTENDEE_EMAIL,
+        if(response === 'going'){
+            firebase.database().ref('RSVP/going/').push({
+                name: name,
+                pax: parseInt(pax),
+                message: message
             }).then(() => {
-                firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/checker/' + SAVE_KEY).update({
-                    name: ATTENDEE_NAME,
-                    email: ATTENDEE_EMAIL,
-                    response: RESPONSE,
-                })
-            }).then(() => {
-                this.setState({
-                    attendee_email:'',
-                    attendee_name:'',
-                    attendee_check:'',
-                    response:'',
-                })
+                this.setState({ response:'', name:'', pax:0, message:'' });
+                this.toggleRSVP();
             })
         }
-        if(access === 'closed'){
-            console.log('CLOSED check dulu baru save');
-            console.log('check',this.state.attendee_check);
-            let ATTENDEE_EMAIL = this.state.attendee_email;
-            let ATTENDEE_NAME = this.state.attendee_name;
-            // this RESPONSE is meant for checking dah respond ke belum
-            let RESPONSE = this.state.attendee_check.response;
-            let SAVE_KEY = this.state.attendee_check.key
-            let check = that.state.emailChecker.map((x) => {
-                return x.email;
-            }).indexOf(this.state.attendee_email);
-
-            if(RESPONSE !== this.state.response) {
-                firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/' + RESPONSE + '/' + SAVE_KEY).remove()
-            }
-            console.log('old',SAVE_KEY);            
-            
-            firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/' + this.state.response + '/' + SAVE_KEY).update({
-                name: ATTENDEE_NAME,
-                email: ATTENDEE_EMAIL,
+        if(response === 'not going'){
+            firebase.database().ref('RSVP/not_going/').push({
+                name: name,
+                // pax: pax,
+                message: message
             }).then(() => {
-                firebase.database().ref(REF + that.props.mobx_auth.eventID + '/_events/' + this.props.event.key +'/attendance/checker/' + SAVE_KEY).update({
-                    name: ATTENDEE_NAME,
-                    email: ATTENDEE_EMAIL,
-                    response: this.state.response,
-                })
-            }).then(() => {
-                this.setState({
-                    attendee_email:'',
-                    attendee_name:'',
-                    attendee_check:'',
-                    response:'',
-                })
+                this.setState({ response:'', name:'', pax:0, message:'' });
+                this.toggleRSVP();
             })
-
         }
-
     }
-    
+
+    _renderResponse = () => {
+        let display, form_content, {response} = this.state;
+
+        if(response === ''){
+            form_content = <div className="text-center mt-4 mb-3">Click on the buttons above to mark your attendance</div>
+        }
+        if(response !== ''){
+            form_content =
+            <div className="mt-4 mb-3">
+                <FormGroup>
+                    <Label for='name'><span style={{fontSize:'1.3rem'}}>Name</span></Label>
+                    <Input type='text' name='name' id='name' onChange={this.handleChange}/>
+                </FormGroup>
+
+                {
+                    response === 'going' ?
+                    <FormGroup>
+                        <Label for='pax'><span style={{fontSize:'1.3rem'}}>How many people will be joining you?</span><br/>(Spouse, partner, family member)</Label>
+                        <Input type='number' name='pax' id='pax' onChange={this.handleChange}/>
+                    </FormGroup> : null
+                }
+
+                <FormGroup>
+                    <Label for='message'><span style={{fontSize:'1.3rem'}}>Leave a message for the newlyweds</span> (Optional)</Label>
+                    <Input type='textarea' name='message' id='message' onChange={this.handleChange}/>
+                </FormGroup>
+            </div>
+        }
 
 
+        display =
+        <>
+            <div style={{display:'flex', justifyContent:'center'}}>
+                <Button onClick={() => {this._markResponse('not going')}} style={{flex:'1', margin:'0 5px'}} color="danger">Not Going</Button>{' '}
+                
+                <Button onClick={() => {this._markResponse('going')}} style={{flex:'1', margin:'0 5px'}} color="success">Going</Button>
+            </div>
+
+            {form_content}
+        </>
+        
+
+        return display;
+    }
+    _renderButton = () => {
+        let display, { loadButt } = this.state;
+
+        if(loadButt === false){
+            display = <Button color='primary' onClick={this._save}>Confirm</Button>
+        }
+        if(loadButt === true){
+            display = <Button disabled color='primary' style={{display:'flex', alignItems:'center'}} onClick={this._save}><div>Saving</div><div className="buttonloader ml-2"></div></Button>
+        }
+
+        return display;
+    }
     render() {
-        
-        
         return (
             <div>
-                {/* <Button onClick={this.toggleFindRSVP} style={{background:`${this.props.primary}`,borderColor:`${this.props.primary}`, margin: '3px 0', fontSize:'1.2rem'}}>RSVP</Button> */}
                 <Button onClick={this.toggleRSVP} color="primary" style={{...styles.RSVP, margin:'0'}}>RSVP</Button>
 
                 {/* ===toggleRSVP=== */}
                 <Modal className="modal-dialog-centered modal-default" style={{maxWidth:'425px', color:'white'}} isOpen={this.state.modalRSVP} toggle={this.toggleRSVP}>
                     <ModalHeader toggle={this.toggleRSVP}>RSVP</ModalHeader>
                     <ModalBody>
-                        <p className="text-center h3 text-white">Confirm attendance</p>
-                        <div style={{display:'flex', justifyContent:'center'}}>
-                            <Button onClick={() => {this.toggleCollapse('notgoing')}} style={{flex:'1', margin:'0 5px'}} color="danger">Not Going</Button>{' '}
-                            <Button onClick={() => {this.toggleCollapse('maybe')}} style={{flex:'1', margin:'0 5px'}} color="warning">Maybe</Button>{' '}
-                            <Button onClick={() => {this.toggleCollapse('going')}} style={{flex:'1', margin:'0 5px'}} color="success">Going</Button>
-                        </div>
+                        <p className="text-center mb-4 h4 text-white">Confirm attendance</p>
 
-                        <Collapse isOpen={this.state.collapseNOT} >
-                            <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4 text-white">Not Going</p>
-                                <Form>
-                                    <FormGroup>
-                                        <Label for='attendee_name'>Name</Label>
-                                        <Input type='text' name='attendee_name' id='attendee_name' value={this.state.attendee_name} onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    <FormGroup>
-                                        <Label for='attendee_email'>Email</Label>
-                                        <Input type='text' value={this.state.attendee_email} name='attendee_email' id='attendee_email' onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    {/* <FormGroup>
-                                        <Label for='attendee_message'>Send your wishes</Label>
-                                        <Input type='textarea' name='attendee_message' id='attendee_message' onChange={this.handleChange}/>
-                                    </FormGroup> */}
-                                </Form>
-                            </CardBody>
-                        </Collapse>
-
-                        <Collapse isOpen={this.state.collapseMAYBE} >
-                            <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4 text-white">Maybe</p>
-                                <Form>
-                                    <FormGroup>
-                                        <Label for='attendee_name'>Name</Label>
-                                        <Input type='text' name='attendee_name' id='attendee_name' value={this.state.attendee_name}  onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    <FormGroup>
-                                        <Label for='attendee_email'>Email</Label>
-                                        <Input type='text' value={this.state.attendee_email} name='attendee_email' id='attendee_email' onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    {/* <FormGroup>
-                                        <Label for='attendee_message'>Send your wishes</Label>
-                                        <Input type='textarea' name='attendee_message' id='attendee_message' onChange={this.handleChange}/>
-                                    </FormGroup> */}
-                                </Form>
-                            </CardBody>
-                        </Collapse>
-
-                        <Collapse isOpen={this.state.collapseYES} >
-                            <CardBody style={{borderTop:'1px solid ' + `${this.props.secondary}`, marginTop:'20px'}}>
-                                <p className="text-center h4 text-white">Going</p>
-                                <Form>
-                                    <FormGroup >
-                                        <Label for='attendee_name'>Name</Label>
-                                        <Input type='text' name='attendee_name' id='attendee_name' value={this.state.attendee_name} onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    <FormGroup>
-                                        <Label for='attendee_email'>Email</Label>
-                                        <Input type='text' value={this.state.attendee_email} name='attendee_email' id='attendee_email' onChange={this.handleChange}/>
-                                    </FormGroup>
-
-                                    {/* <FormGroup>
-                                        <Label for='attendee_message'>Send your wishes</Label>
-                                        <Input type='textarea' name='attendee_message' id='attendee_message' onChange={this.handleChange}/>
-                                    </FormGroup> */}
-                                </Form>
-                            </CardBody>
-                        </Collapse>
-
-                        <div style={{marginTop:'15px'}}>
-                            <Button style={{width:'100%'}} color='dark' onClick={() => {
-                                this._confirm()
-                                this.toggleRSVP()
-                                this.toggleFindRSVP()
-                            }}>Save and RSVP for another member of your party</Button>
-                        </div>
-                        
+                        {this._renderResponse()}
                     </ModalBody>
                     <ModalFooter>
-                        <Button color='primary' onClick={() => {
-                            this._confirm()
-                            this.toggleRSVP()
-                        }}>Confirm</Button>{' '}
-                        <Button className='ml-auto text-white' color='link' onClick={this.toggleRSVP}>Cancel</Button>
+                        {this._renderButton()}{' '}
+                        <Button className='ml-auto text-white' color='link' onClick={() => {
+                            this.setState({ response:'', name:'', pax:0, message:'' });
+                            this.toggleRSVP();
+                        }}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </div>

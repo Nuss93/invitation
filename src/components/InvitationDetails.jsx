@@ -18,7 +18,7 @@ class InvitationDetails extends PureComponent {
                         <div>Dr. Nik Nor Suzet Mohd Zain</div>
                     </div>
 
-                    <div className="mb-3" style={{width:'85%', marginLeft:'auto', marginRight:'auto'}}>dengan segala hormatnya menjemput anda ke majlis perkahwinan puteri kami</div>
+                    <div className="mb-3" style={{width:'85%', marginLeft:'auto', marginRight:'auto'}}>dengan segala hormatnya menjemput ke majlis perkahwinan puteri kami</div>
 
                     <div className="d-flex flex-column mb-3 font-weight-bold" style={{textTransform:'uppercase'}}>
                         <div>Nasreen Amalina Binti Abdul Razak</div>
@@ -33,31 +33,14 @@ class InvitationDetails extends PureComponent {
 
                     <hr className="mt-0 mb-4" />
 
-                    {/* The aturcara */}
-                    <div className="mb-0 font-weight-bold" style={{textTransform:'uppercase', lineHeight:'1'}}>Aturcara Majlis</div>
-                    <div className="d-flex flex-column mb-3">
+                    {/* The atur cara */}
+                    <div className="mb-0 font-weight-bold" style={{textTransform:'uppercase', lineHeight:'1'}}>Atur cara Majlis</div>
+                    <div className="d-flex flex-column mb-5">
                         <div className="font-weight-bold">Jamuan makan :</div>
                         <div>12:00pm - 4:00pm</div>
                     </div>
                 </div>
             </div>
-
-            {/* MAP */}
-            {/* <div className="App-section light">
-                <div>
-                    <img src={MAP} style={{width:'100%'}} />
-                    <Button color="default">Waze</Button>
-                </div>
-            </div> */}
-
-            
-            {/* RSVP */}
-            {/* <div className="App-section dark">
-                <div className="pt-5 pb-5">
-                    <div className="mb-3">Jika anda mampu hadir, sila <b>RSVP</b> sebelum 10 Januari 2020</div>
-                    <Button color="default">RSVP</Button>
-                </div>
-            </div> */}
             </>
         );
     }
