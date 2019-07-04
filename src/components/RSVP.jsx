@@ -25,39 +25,39 @@ class RSVP extends Component {
             modalRSVP : !this.state. modalRSVP,
         })
     }
-    componentDidMount() {
-        // this.fetchRSVP()
-    }
-    componentWillUnmount() {
-        // let REF = 'RSVP/'
-        // firebase.database().ref(REF).off()
-    }
-    fetchRSVP = () => {
-        let that = this;
-        let REF = 'RSVP/'
+    // componentDidMount() {
+    //     // this.fetchRSVP()
+    // }
+    // componentWillUnmount() {
+    //     // let REF = 'RSVP/'
+    //     // firebase.database().ref(REF).off()
+    // }
+    // fetchRSVP = () => {
+    //     let that = this;
+    //     let REF = 'RSVP/'
 
-        firebase.database().ref(REF).on('value', function(snapshot){
-            let EMAIL = [];
-            if(snapshot.exists()){
-                console.log(snapshot.val());
-                let keys = Object.keys(snapshot.val());
-                keys.forEach((attendee_id) => {
-                    let a = {}
-                    a.email = snapshot.val()[attendee_id].email
-                    a.key = attendee_id
-                    a.name = snapshot.val()[attendee_id].name
-                    a.response = snapshot.val()[attendee_id].response
-                    EMAIL.push(a)
-                })
+    //     firebase.database().ref(REF).on('value', function(snapshot){
+    //         let EMAIL = [];
+    //         if(snapshot.exists()){
+    //             console.log(snapshot.val());
+    //             let keys = Object.keys(snapshot.val());
+    //             keys.forEach((attendee_id) => {
+    //                 let a = {}
+    //                 a.email = snapshot.val()[attendee_id].email
+    //                 a.key = attendee_id
+    //                 a.name = snapshot.val()[attendee_id].name
+    //                 a.response = snapshot.val()[attendee_id].response
+    //                 EMAIL.push(a)
+    //             })
 
-                console.log(EMAIL)
+    //             console.log(EMAIL)
 
-                that.setState({emailChecker:EMAIL})
-            } else {
-                console.log('no on has RSVP yet');
-            }
-        })
-    }
+    //             that.setState({emailChecker:EMAIL})
+    //         } else {
+    //             console.log('no on has RSVP yet');
+    //         }
+    //     })
+    // }
 
     _markResponse = (response) => {
         this.setState({response: response})
@@ -79,9 +79,10 @@ class RSVP extends Component {
             firebase.database().ref('RSVP/going/').push({
                 name: name,
                 pax: parseInt(pax),
-                message: message
+                message: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                this.setState({ response:'', name:'', pax:0, message:'' });
+                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false });
                 this.toggleRSVP();
             })
         }
@@ -89,9 +90,10 @@ class RSVP extends Component {
             firebase.database().ref('RSVP/not_going/').push({
                 name: name,
                 // pax: pax,
-                message: message
+                message: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                this.setState({ response:'', name:'', pax:0, message:'' });
+                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false });
                 this.toggleRSVP();
             })
         }
