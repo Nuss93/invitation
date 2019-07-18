@@ -73,8 +73,7 @@ class RSVP extends Component {
             alert('Please fill in your name!')
             return;
         }
-        console.log(name, response, pax, message);
-        
+        // console.log(name, response, pax, message);
         if(response === 'going'){
             firebase.database().ref('RSVP/going/').push({
                 name: name,
@@ -116,12 +115,13 @@ class RSVP extends Component {
                 {
                     response === 'going' ?
                     <FormGroup>
-                        <Label for='pax'><span style={{fontSize:'1.3rem'}}>How many people will be joining you?</span><br/>(Spouse, partner, family member)</Label>
+                        <h6 className="mb-0 mt-4" style={{color:'red'}}>Important!</h6>
+                        <Label for='pax'><span style={{fontSize:'1.3rem'}}>Will you be bringing a plus one? If yes, please mention how many.</span><br/>(Spouse, partner, family member)</Label>
                         <Input type='number' name='pax' id='pax' onChange={this.handleChange}/>
                     </FormGroup> : null
                 }
 
-                <FormGroup>
+                <FormGroup className="mb-3">
                     <Label for='message'><span style={{fontSize:'1.3rem'}}>Leave a message for the newlyweds</span> (Optional)</Label>
                     <Input type='textarea' name='message' id='message' onChange={this.handleChange}/>
                 </FormGroup>
@@ -164,7 +164,7 @@ class RSVP extends Component {
                 <Modal className="modal-dialog-centered modal-default" style={{maxWidth:'425px', color:'white'}} isOpen={this.state.modalRSVP} toggle={this.toggleRSVP}>
                     <ModalHeader toggle={this.toggleRSVP}>RSVP</ModalHeader>
                     <ModalBody>
-                        <p className="text-center mb-4 h4 text-white">Confirm attendance</p>
+                        <p className="text-center mb-4 mt-2 h4 text-white">Confirm attendance</p>
 
                         {this._renderResponse()}
                     </ModalBody>
