@@ -31,6 +31,11 @@ class InvitationDetails extends PureComponent {
                         Lot 2885, Jalan 6/71B, Pinggir Taman Tun Dr Ismail, 60000 KL
                     </div>
 
+                    <div className="mb-4" style={{fontSize:'0.8rem'}}>
+                        <b>RSVP</b> sebelum 25 December 2019<br/>
+                        melalui <b>WhatsApp/SMS</b> atau tekan butang <b>RSVP</b> di bawah
+                    </div>
+
                     <hr className="mt-0 mb-4" />
 
                     {/* The atur cara */}
