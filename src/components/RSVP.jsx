@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Collapse,
     Form, FormGroup, Label, Input, FormText, CardBody, Col } from 'reactstrap';
+import { geolocated } from "react-geolocated";
 import PropTypes from 'prop-types';
 import * as firebase from 'firebase';
+import { log } from 'util';
 
 class RSVP extends Component {
     constructor(props) {
@@ -75,7 +77,8 @@ class RSVP extends Component {
         }
         // console.log(name, response, pax, message);
         if(response === 'going'){
-            firebase.database().ref('RSVP/going/').push({
+            let GOING_ID = firebase.database().ref('RSVP/going/').push().getKey()
+            firebase.database().ref('RSVP/going/' + GOING_ID).update({
                 name: name,
                 pax: parseInt(pax),
                 message: message,
@@ -86,7 +89,8 @@ class RSVP extends Component {
             })
         }
         if(response === 'not going'){
-            firebase.database().ref('RSVP/not_going/').push({
+            let NOT_ID = firebase.database().ref('RSVP/not_going/').push().getKey()
+            firebase.database().ref('RSVP/not_going/' + NOT_ID).update({
                 name: name,
                 // pax: pax,
                 message: message,
@@ -96,6 +100,8 @@ class RSVP extends Component {
                 this.toggleRSVP();
             })
         }
+
+        
     }
 
     _renderResponse = () => {
@@ -156,6 +162,8 @@ class RSVP extends Component {
         return display;
     }
     render() {
+        console.log(this.props);
+        
         return (
             <div>
                 <Button onClick={this.toggleRSVP} color="primary" style={{...styles.RSVP, margin:'0'}}>RSVP</Button>
@@ -199,4 +207,9 @@ const styles = {
         boxShadow: 'rgba(0, 0, 0, 0.16) 0px -1px 6px, rgba(0, 0, 0, 0.23) 0px -1px 6px',
     }
 }
-export default RSVP;
+export default geolocated({
+    positionOptions: {
+        enableHighAccuracy: false,
+    },
+    userDecisionTimeout: 5000,
+})(RSVP);
