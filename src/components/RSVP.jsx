@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Collapse,
     Form, FormGroup, Label, Input, FormText, CardBody, Col } from 'reactstrap';
-import { geolocated } from "react-geolocated";
 import PropTypes from 'prop-types';
+import { path } from 'config.js'
 import * as firebase from 'firebase';
-import { log } from 'util';
 
-class RSVP extends Component {
+export default class RSVP extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -77,27 +76,53 @@ class RSVP extends Component {
         }
         // console.log(name, response, pax, message);
         if(response === 'going'){
-            let GOING_ID = firebase.database().ref('RSVP/going/').push().getKey()
-            firebase.database().ref('RSVP/going/' + GOING_ID).update({
+            let GOING_ID = firebase.database().ref(`${path}/RSVP/going/`).push().getKey()
+
+            if(message !== ''){
+                firebase.database().ref(`${path}/guestbook/${GOING_ID}`).update({
+                    name: name,
+                    pax: parseInt(pax),
+                    attendance: 'Going',
+                    message: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                })
+            }
+
+            firebase.database().ref(`${path}/RSVP/going/${GOING_ID}`).update({
                 name: name,
                 pax: parseInt(pax),
                 message: message,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false });
-                this.toggleRSVP();
+                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false }, () => {
+                    this.props.parentRefresh()
+                    this.toggleRSVP();
+                });
             })
         }
         if(response === 'not going'){
-            let NOT_ID = firebase.database().ref('RSVP/not_going/').push().getKey()
-            firebase.database().ref('RSVP/not_going/' + NOT_ID).update({
+            let NOT_ID = firebase.database().ref(`${path}/RSVP/not_going/`).push().getKey()
+
+            if(message !== ''){
+                firebase.database().ref(`${path}/guestbook/${NOT_ID}`).update({
+                    name: name,
+                    pax: 0,
+                    attendance: 'Not Going',
+                    message: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                })
+            }
+
+            firebase.database().ref(`${path}/RSVP/not_going/${NOT_ID}`).update({
                 name: name,
                 // pax: pax,
                 message: message,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false });
-                this.toggleRSVP();
+                this.setState({ response:'', name:'', pax:0, message:'', loadButt: false }, () => {
+                    this.props.parentRefresh()
+                    this.toggleRSVP();
+                });
             })
         }
 
@@ -128,7 +153,7 @@ class RSVP extends Component {
                 }
 
                 <FormGroup className="mb-3">
-                    <Label for='message'><span style={{fontSize:'1.3rem'}}>Leave a message for the newlyweds</span> (Optional)</Label>
+                    <Label for='message'><span style={{fontSize:'1.3rem'}}>Leave a message for the guestbook</span> (Optional)</Label>
                     <Input type='textarea' name='message' id='message' onChange={this.handleChange}/>
                 </FormGroup>
             </div>
@@ -153,7 +178,7 @@ class RSVP extends Component {
         let display, { loadButt } = this.state;
 
         if(loadButt === false){
-            display = <Button color='primary' onClick={this._save}>Confirm</Button>
+            display = <Button color='default' onClick={this._save}>Confirm</Button>
         }
         if(loadButt === true){
             display = <Button disabled color='primary' style={{display:'flex', alignItems:'center'}} onClick={this._save}><div>Saving</div><div className="buttonloader ml-2"></div></Button>
@@ -192,7 +217,7 @@ class RSVP extends Component {
 const styles = {
     RSVP : {
         fontWeight:'bold',
-        background: '#91b3cd',
+        background: '#927878',
         position: 'absolute',
         top: '-35px',
         left:'50%',
@@ -207,9 +232,3 @@ const styles = {
         boxShadow: 'rgba(0, 0, 0, 0.16) 0px -1px 6px, rgba(0, 0, 0, 0.23) 0px -1px 6px',
     }
 }
-export default geolocated({
-    positionOptions: {
-        enableHighAccuracy: false,
-    },
-    userDecisionTimeout: 5000,
-})(RSVP);
